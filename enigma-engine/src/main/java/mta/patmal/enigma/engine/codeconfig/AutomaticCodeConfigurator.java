@@ -6,14 +6,12 @@ import mta.patmal.enigma.machine.component.code.Code;
 import mta.patmal.enigma.machine.component.code.CodeImpl;
 import mta.patmal.enigma.machine.component.machine.Machine;
 import mta.patmal.enigma.machine.component.machine.MachineImpl;
+import mta.patmal.enigma.machine.component.plugboard.Plugboard;
+import mta.patmal.enigma.machine.component.plugboard.PlugboardImpl;
 import mta.patmal.enigma.machine.component.reflector.Reflector;
 import mta.patmal.enigma.machine.component.rotor.Rotor;
 
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Random;
-import java.util.Set;
+import java.util.*;
 
 public class AutomaticCodeConfigurator {
     private static final int REQUIRED_ROTOR_COUNT = 3;
@@ -39,11 +37,33 @@ public class AutomaticCodeConfigurator {
             List<Integer> rotorIds = generateRandomRotorIds();
             List<Integer> rotorPositions = generateRandomRotorPositions(rotorIds);
             Reflector reflector = generateRandomReflector();
-            createAndSetCode(rotorIds, rotorPositions, reflector);
+            Plugboard plugboard = generateRandomPlugboard();
+            createAndSetCode(rotorIds, rotorPositions, reflector, plugboard);
         } catch (Exception e) {
             throw new InvalidConfigurationException("Failed to automatically configure code: " + e.getMessage(), e);
         }
     }
+
+    private Plugboard generateRandomPlugboard() {
+        int n = abc.length();
+        int maxPairs = n / 2;
+        int pairs = random.nextInt(maxPairs + 1); // 0..maxPairs
+
+        List<Integer> indices = new ArrayList<>();
+        for (int i = 0; i < n; i++) indices.add(i);
+        Collections.shuffle(indices, random);
+
+        Map<Integer,Integer> wiring = new HashMap<>();
+        for (int i = 0; i < pairs * 2; i += 2) {
+            int a = indices.get(i);
+            int b = indices.get(i + 1);
+            wiring.put(a, b);
+            wiring.put(b, a);
+        }
+
+        return new PlugboardImpl(wiring);
+    }
+
 
     private List<Integer> generateRandomRotorIds() {
         Set<Integer> selectedRotors = new HashSet<>();
@@ -77,7 +97,7 @@ public class AutomaticCodeConfigurator {
         return xmlLoader.createReflectorByNumericId(reflectorId);
     }
 
-    private void createAndSetCode(List<Integer> rotorIds, List<Integer> rotorPositions, Reflector reflector) throws InvalidConfigurationException {
+    private void createAndSetCode(List<Integer> rotorIds, List<Integer> rotorPositions, Reflector reflector, Plugboard plugboard) throws InvalidConfigurationException {
         List<Integer> reversedRotorIds = new ArrayList<>();
         List<Integer> reversedPositions = new ArrayList<>();
         
@@ -99,7 +119,7 @@ public class AutomaticCodeConfigurator {
         }
 
         // Create Code object
-        Code code = new CodeImpl(rotors, reversedPositions, reflector);
+        Code code = new CodeImpl(rotors, reversedPositions, reflector, plugboard);
         
         // Set code on machine
         if (machine instanceof MachineImpl) {

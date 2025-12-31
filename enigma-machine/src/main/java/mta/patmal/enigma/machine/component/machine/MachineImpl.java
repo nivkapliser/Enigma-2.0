@@ -29,17 +29,26 @@ public class MachineImpl implements Machine{
     public char process(char input) {
 
         int intermediate = keyboard.processChar(input);
+
+        // plugboard in
+        intermediate = code.getPlugboard().process(intermediate);
+
         List<Rotor> rotors = code.getRotors();
+
         // advance
         advance(rotors);
 
-        // forward
+        // forward through rotors
         intermediate = forwardTransform(rotors, intermediate);
 
+        // reflector
         intermediate = code.getReflector().process(intermediate);
 
-        // backward
+        // backward through rotors
         intermediate = backwardTransform(rotors, intermediate);
+
+        // plugboard out
+        intermediate = code.getPlugboard().process(intermediate);
 
         char result = keyboard.lightALamp(intermediate);
 

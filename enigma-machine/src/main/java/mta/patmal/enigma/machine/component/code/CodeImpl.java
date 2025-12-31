@@ -1,17 +1,20 @@
 package mta.patmal.enigma.machine.component.code;
+import mta.patmal.enigma.machine.component.plugboard.Plugboard;
 import mta.patmal.enigma.machine.component.reflector.Reflector;
 import mta.patmal.enigma.machine.component.rotor.Rotor;
 import java.util.List;
 
-public class CodeImpl implements Code{
+public class CodeImpl implements Code {
     private final List<Rotor> rotors;
     private final List<Integer> positions;
     private final Reflector reflector;
+    private final Plugboard plugboard;
+
 
     public CodeImpl(List<Rotor> rotors,
                     List<Integer> positions,
-                    Reflector reflector) {
-        if (rotors == null || positions == null || reflector == null) {
+                    Reflector reflector, Plugboard plugboard) {
+        if (rotors == null || positions == null || reflector == null || plugboard == null) {
             throw new IllegalArgumentException("Arguments cannot be null");
         }
         if (rotors.size() != positions.size()) {
@@ -20,7 +23,9 @@ public class CodeImpl implements Code{
         this.rotors = List.copyOf(rotors);
         this.positions = List.copyOf(positions);
         this.reflector = reflector;
+        this.plugboard = plugboard;
     }
+
     @Override
     public List<Rotor> getRotors() {
         return rotors;
@@ -35,5 +40,8 @@ public class CodeImpl implements Code{
     public Reflector getReflector() {
         return reflector;
     }
+
+    @Override
+    public Plugboard getPlugboard() {return plugboard; }
 
 }

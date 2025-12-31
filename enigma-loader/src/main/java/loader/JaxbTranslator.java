@@ -7,15 +7,14 @@ import mta.patmal.enigma.machine.component.keyboard.Keyboard;
 import mta.patmal.enigma.machine.component.keyboard.KeyboardImpl;
 import mta.patmal.enigma.machine.component.machine.Machine;
 import mta.patmal.enigma.machine.component.machine.MachineImpl;
+import mta.patmal.enigma.machine.component.plugboard.Plugboard;
+import mta.patmal.enigma.machine.component.plugboard.PlugboardImpl;
 import mta.patmal.enigma.machine.component.reflector.Reflector;
 import mta.patmal.enigma.machine.component.reflector.ReflectorImpl;
 import mta.patmal.enigma.machine.component.rotor.Rotor;
 import mta.patmal.enigma.machine.component.rotor.RotorImpl;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.stream.Collectors;
 
 public class JaxbTranslator {
@@ -46,6 +45,7 @@ public class JaxbTranslator {
     private Keyboard createKeyboard(String abc) {
         return new KeyboardImpl(abc);
     }
+
     
     private List<BTERotor> selectRotors(BTEEnigma enigma) {
         List<BTERotor> bteRotors = enigma.getBTERotors().getBTERotor();
@@ -73,7 +73,8 @@ public class JaxbTranslator {
     }
     
     private Machine assembleMachine(Keyboard keyboard, List<Rotor> rotors, List<Integer> positions, Reflector reflector) {
-        Code code = new CodeImpl(rotors, positions, reflector);
+        Plugboard empty = new PlugboardImpl(Collections.emptyMap());
+        Code code = new CodeImpl(rotors, positions, reflector, empty);
         Machine machine = new MachineImpl(keyboard);
         machine.setCode(code);
         return machine;

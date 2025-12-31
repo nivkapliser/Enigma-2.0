@@ -72,9 +72,9 @@ public class EngineOperations {
                 display.displaySuccess("Returning to main menu.");
                 return;
             }
-            
+            String plugs = input.getPlugs(specs.getAlphabet());
             CodeConfigurationRequestDTO request = new CodeConfigurationRequestDTO(
-                rotorIds, positions, reflectorId
+                rotorIds, positions, reflectorId, plugs
             );
             
             CodeConfigurationResultDTO result = engine.codeManual(request);
