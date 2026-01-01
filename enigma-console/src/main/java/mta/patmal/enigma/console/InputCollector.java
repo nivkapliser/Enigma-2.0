@@ -121,6 +121,43 @@ public class InputCollector {
         }
     }
 
+    public String getPlugs(String abc) {
+        while (true) {
+            System.out.print("Enter plugboard pairs (e.g., ADCF means A<->D, C<->F). Leave empty for none: ");
+            String s = scanner.nextLine().trim();
+
+            if (shouldReturnToMenu(s)) {
+                return null;
+            }
+
+            if (s.isEmpty()) {
+                return "";
+            }
+
+            if (s.length() % 2 != 0) {
+                System.out.println("Error: plugboard length must be even.");
+                if (!confirmRetry()) return "";
+                continue;
+            }
+
+            boolean ok = true;
+            for (int i = 0; i < s.length(); i++) {
+                if (abc.indexOf(s.charAt(i)) == -1) {
+                    ok = false;
+                    break;
+                }
+            }
+            if (!ok) {
+                System.out.println("Error: plugboard contains characters not in ABC.");
+                if (!confirmRetry()) return "";
+                continue;
+            }
+
+            return s;
+        }
+    }
+
+
     public boolean confirmRetry() {
         System.out.print("Would you like to try again? (y/n): ");
         String response = scanner.nextLine().trim().toLowerCase();

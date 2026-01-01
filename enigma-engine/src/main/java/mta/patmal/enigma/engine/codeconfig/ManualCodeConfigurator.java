@@ -6,11 +6,12 @@ import mta.patmal.enigma.machine.component.code.Code;
 import mta.patmal.enigma.machine.component.code.CodeImpl;
 import mta.patmal.enigma.machine.component.machine.Machine;
 import mta.patmal.enigma.machine.component.machine.MachineImpl;
+import mta.patmal.enigma.machine.component.plugboard.Plugboard;
+import mta.patmal.enigma.machine.component.plugboard.PlugboardImpl;
 import mta.patmal.enigma.machine.component.reflector.Reflector;
 import mta.patmal.enigma.machine.component.rotor.Rotor;
 
-import java.util.ArrayList;
-import java.util.List;
+import java.util.*;
 
 public class ManualCodeConfigurator {
     private static final int REQUIRED_ROTOR_COUNT = 3;
@@ -29,12 +30,46 @@ public class ManualCodeConfigurator {
         this.totalReflectors = totalReflectors;
     }
 
-    public void configure(List<Integer> rotorIds, String positionsString, int reflectorId) throws InvalidConfigurationException {
+    public void configure(List<Integer> rotorIds, String positionsString, int reflectorId, String plugsString) throws InvalidConfigurationException {
         validateRotorIds(rotorIds);
         List<Integer> rotorPositions = parseAndValidatePositions(positionsString, rotorIds);
         Reflector reflector = validateAndCreateReflector(reflectorId);
-        createAndSetCode(rotorIds, rotorPositions, reflector);
+        Plugboard plugboard = parseAndCreatePlugboard(plugsString);
+        createAndSetCode(rotorIds, rotorPositions, reflector, plugboard);
     }
+
+    private Plugboard parseAndCreatePlugboard(String plugsString) throws InvalidConfigurationException {
+        if (plugsString == null || plugsString.trim().isEmpty()) {
+            // No plugs provided, return empty plugboard
+            return new PlugboardImpl(Collections.emptyMap());
+        }
+        String s = plugsString.trim();
+        if (s.length() % 2 != 0) {
+            throw new InvalidConfigurationException("Plugboard string length must be even (pairs). Got: " + s.length());
+        }
+
+        Map<Integer, Integer> map = new HashMap<>();
+        for (int i = 0; i < s.length(); i += 2) {
+            char a = s.charAt(i);
+            char b = s.charAt(i + 1);
+
+            int a_index = abc.indexOf(a);
+            int b_index = abc.indexOf(b);
+            if (a_index == -1 || b_index == -1) {
+                throw new InvalidConfigurationException("Plugboard contains chars not in ABC: " + a + "," + b);
+            }
+            if (a_index == b_index) {
+                throw new InvalidConfigurationException("Plugboard cannot map a letter to itself: " + a);
+            }
+            if (map.containsKey(a_index) || map.containsKey(b_index)) {
+                throw new InvalidConfigurationException("Letter already plugged: " + a + " or " + b);
+            }
+            map.put(a_index, b_index);
+            map.put(b_index, a_index);
+        }
+        return new PlugboardImpl(map);
+    }
+
 
     private void validateRotorIds(List<Integer> rotorIds) throws InvalidConfigurationException {
         if (rotorIds == null || rotorIds.isEmpty()) {
@@ -118,7 +153,7 @@ public class ManualCodeConfigurator {
         }
     }
 
-    private void createAndSetCode(List<Integer> rotorIds, List<Integer> rotorPositions, Reflector reflector) throws InvalidConfigurationException {
+    private void createAndSetCode(List<Integer> rotorIds, List<Integer> rotorPositions, Reflector reflector, Plugboard plugboard) throws InvalidConfigurationException {
         // Reverse the lists because user input is left-to-right, but we store right-to-left
         List<Integer> reversedRotorIds = new ArrayList<>();
         List<Integer> reversedPositions = new ArrayList<>();
@@ -141,7 +176,7 @@ public class ManualCodeConfigurator {
         }
 
         // Create Code object
-        Code code = new CodeImpl(rotors, reversedPositions, reflector);
+        Code code = new CodeImpl(rotors, reversedPositions, reflector, plugboard);
         
         // Set code on machine
         if (machine instanceof MachineImpl) {

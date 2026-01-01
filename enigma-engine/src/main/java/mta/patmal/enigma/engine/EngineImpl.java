@@ -15,6 +15,7 @@ import mta.patmal.enigma.machine.component.code.Code;
 import mta.patmal.enigma.machine.component.code.CodeImpl;
 import mta.patmal.enigma.machine.component.machine.Machine;
 import mta.patmal.enigma.machine.component.machine.MachineImpl;
+import mta.patmal.enigma.machine.component.plugboard.Plugboard;
 
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
@@ -97,7 +98,7 @@ public class EngineImpl implements Engine {
         ManualCodeConfigurator configurator = new ManualCodeConfigurator(
                 machine, xmlLoader, abc, totalRotors, totalReflectors);
 
-        configurator.configure(request.getRotorIds(), request.getPositionsString(), request.getReflectorId());
+        configurator.configure(request.getRotorIds(), request.getPositionsString(), request.getReflectorId(), request.getPlugsString());
         
         // Update original code after successful configuration
         if (machine instanceof MachineImpl machineImpl) {
@@ -108,7 +109,8 @@ public class EngineImpl implements Engine {
             for (var rotor : rotors) {
                 positions.add(rotor.getPosition());
             }
-            this.originalCode = new CodeImpl(rotors, positions, reflector);
+            Plugboard plugboard = currentCode.getPlugboard();
+            this.originalCode = new CodeImpl(rotors, positions, reflector, plugboard);
             this.originalCodeString = dataFormatter.formatCode(currentCode, machineImpl);
             
             return CodeConfigurationResultDTO.success(originalCodeString);
@@ -138,7 +140,9 @@ public class EngineImpl implements Engine {
             for (var rotor : rotors) {
                 positions.add(rotor.getPosition());
             }
-            this.originalCode = new CodeImpl(rotors, positions, reflector);
+
+            Plugboard plugboard = currentCode.getPlugboard();
+            this.originalCode = new CodeImpl(rotors, positions, reflector, plugboard);
             this.originalCodeString = dataFormatter.formatCode(currentCode, machineImpl);
             
             return CodeConfigurationResultDTO.success(originalCodeString);
