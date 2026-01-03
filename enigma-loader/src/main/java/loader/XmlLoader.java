@@ -51,6 +51,13 @@ public class XmlLoader {
         return lastLoadedEnigma.getBTEReflectors().getBTEReflector().size();
     }
 
+    public int getRequiredRotorsCount() {
+        if (lastLoadedEnigma == null || lastLoadedEnigma.getRotorsCount() == null) {
+            return 0;
+        }
+        return lastLoadedEnigma.getRotorsCount().intValue();
+    }
+
     public BTEEnigma getLastLoadedEnigma() {
         return lastLoadedEnigma;
     }
