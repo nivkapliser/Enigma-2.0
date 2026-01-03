@@ -5,10 +5,11 @@ import loader.XmlLoader;
 import mta.patmal.enigma.dto.MachineData;
 import mta.patmal.enigma.machine.component.code.Code;
 import mta.patmal.enigma.machine.component.machine.MachineImpl;
+import mta.patmal.enigma.machine.component.plugboard.Plugboard;
 import mta.patmal.enigma.machine.component.reflector.Reflector;
 import mta.patmal.enigma.machine.component.rotor.Rotor;
 
-import java.util.List;
+import java.util.*;
 
 public class MachineDataFormatter {
 
@@ -88,7 +89,40 @@ public class MachineDataFormatter {
         String romanId = RomanNumeralUtils.intToRoman(reflector.getId());
         sb.append("<").append(romanId).append(">");
 
+        Plugboard plugboard = code.getPlugboard();
+        String plugsString = formatPlugboard(plugboard);
+        if (!plugsString.isEmpty()) {
+            sb.append("<").append(plugsString).append(">");
+        }
+
         return sb.toString();
+    }
+
+    private String formatPlugboard(Plugboard plugboard) {
+        Map<Integer, Integer> wiring = plugboard.getWiring();
+
+        if (wiring.isEmpty()) {
+            return "";
+        }
+
+        Set<Integer> visited = new HashSet<>();
+        List<String> pairs = new ArrayList<>();
+
+        for (Map.Entry<Integer, Integer> e : wiring.entrySet()) {
+            int a = e.getKey();
+            int b = e.getValue();
+            if (visited.contains(a) || visited.contains(b)) continue;
+
+            visited.add(a);
+            visited.add(b);
+
+            char ca = xmlLoader.getABC().charAt(a);
+            char cb = xmlLoader.getABC().charAt(b);
+
+            pairs.add(ca + "|" + cb);
+        }
+
+        return String.join(",", pairs);
     }
 }
 

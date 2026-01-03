@@ -19,6 +19,11 @@ public class PlugboardImpl implements Plugboard {
     public int process(int input) {
         return wiring.getOrDefault(input,input);
     }
+
+    @Override
+    public Map<Integer, Integer> getWiring() {
+        return wiring;
+    }
 //
 //    private void validateSymmetricNoSelf(Map<Integer, Integer> wiring) {
 //        for (Map.Entry<Integer, Integer> e : wiring.entrySet()) {
