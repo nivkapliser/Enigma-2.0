@@ -2,12 +2,13 @@ package loader;
 
 import generated.*;
 
+import java.math.BigInteger;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
 public class XmlValidator {
-    private static final int MIN_REQUIRED_ROTORS = 3;
+    private static final int MIN_REQUIRED_ROTORS = 2;
     private static final int MIN_ROTOR_ID = 1;
     private static final int MIN_REFLECTOR_ID = 1;
     private static final int MAX_REFLECTOR_ID = 5;
@@ -18,8 +19,31 @@ public class XmlValidator {
         }
 
         validateABC(xmlEnigma);
+        validateRotorsCount(xmlEnigma);
         validateRotors(xmlEnigma);
         validateReflectors(xmlEnigma);
+    }
+
+    private void validateRotorsCount(BTEEnigma bteEnigma) {
+        BigInteger rotorsCount = bteEnigma.getRotorsCount();
+        
+        if (rotorsCount == null) {
+            throw new IllegalArgumentException("rotors-count attribute is required but not specified in XML");
+        }
+
+        int count = rotorsCount.intValue();
+        
+        if (count < MIN_REQUIRED_ROTORS) {
+            throw new IllegalArgumentException("rotors-count must be at least " + MIN_REQUIRED_ROTORS + ", got: " + count);
+        }
+
+        // Validate that rotors-count does not exceed the total number of rotors defined
+        List<BTERotor> rotors = bteEnigma.getBTERotors().getBTERotor();
+        int totalRotorsDefined = rotors != null ? rotors.size() : 0;
+        
+        if (count > totalRotorsDefined) {
+            throw new IllegalArgumentException("rotors-count (" + count + ") cannot exceed the total number of rotors defined (" + totalRotorsDefined + ")");
+        }
     }
 
     private void validateABC(BTEEnigma bteEnigma) {
@@ -53,9 +77,8 @@ public class XmlValidator {
     }
 
     private void validateRotorCount(List<BTERotor> rotors) {
-        if (rotors == null || rotors.size() < MIN_REQUIRED_ROTORS) {
-            throw new IllegalStateException("At least " + MIN_REQUIRED_ROTORS + " rotors are required, got: " + 
-                    (rotors == null ? 0 : rotors.size()));
+        if (rotors == null || rotors.isEmpty()) {
+            throw new IllegalStateException("No rotors defined in XML");
         }
     }
 

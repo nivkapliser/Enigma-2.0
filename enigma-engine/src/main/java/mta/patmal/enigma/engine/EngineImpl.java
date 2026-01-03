@@ -85,7 +85,8 @@ public class EngineImpl implements Engine {
                 .boxed()
                 .collect(Collectors.toList());
 
-        return new MachineConfigSpecs(availableRotorIds, availableReflectorIds, 3, abc);
+        int requiredRotors = xmlLoader.getRequiredRotorsCount();
+        return new MachineConfigSpecs(availableRotorIds, availableReflectorIds, requiredRotors, abc);
     }
 
     @Override
@@ -95,8 +96,9 @@ public class EngineImpl implements Engine {
             throw new MachineNotLoadedException();
         }
 
+        int requiredRotors = xmlLoader.getRequiredRotorsCount();
         ManualCodeConfigurator configurator = new ManualCodeConfigurator(
-                machine, xmlLoader, abc, totalRotors, totalReflectors);
+                machine, xmlLoader, abc, totalRotors, totalReflectors, requiredRotors);
 
         configurator.configure(request.getRotorIds(), request.getPositionsString(), request.getReflectorId(), request.getPlugsString());
         
@@ -126,8 +128,9 @@ public class EngineImpl implements Engine {
             throw new MachineNotLoadedException();
         }
 
+        int requiredRotors = xmlLoader.getRequiredRotorsCount();
         AutomaticCodeConfigurator configurator = new AutomaticCodeConfigurator(
-                machine, xmlLoader, abc, totalRotors, totalReflectors);
+                machine, xmlLoader, abc, totalRotors, totalReflectors, requiredRotors);
         
         configurator.configure();
         

@@ -14,8 +14,7 @@ import mta.patmal.enigma.machine.component.rotor.Rotor;
 import java.util.*;
 
 public class AutomaticCodeConfigurator {
-    private static final int REQUIRED_ROTOR_COUNT = 3;
-
+    private final int requiredRotorCount;
     private final Machine machine;
     private final XmlLoader xmlLoader;
     private final String abc;
@@ -23,12 +22,13 @@ public class AutomaticCodeConfigurator {
     private final int totalReflectors;
     private final Random random;
 
-    public AutomaticCodeConfigurator(Machine machine, XmlLoader xmlLoader, String abc, int totalRotors, int totalReflectors) {
+    public AutomaticCodeConfigurator(Machine machine, XmlLoader xmlLoader, String abc, int totalRotors, int totalReflectors, int requiredRotorCount) {
         this.machine = machine;
         this.xmlLoader = xmlLoader;
         this.abc = abc;
         this.totalRotors = totalRotors;
         this.totalReflectors = totalReflectors;
+        this.requiredRotorCount = requiredRotorCount;
         this.random = new Random();
     }
 
@@ -69,7 +69,7 @@ public class AutomaticCodeConfigurator {
         Set<Integer> selectedRotors = new HashSet<>();
         List<Integer> rotorIds = new ArrayList<>();
 
-        while (rotorIds.size() < REQUIRED_ROTOR_COUNT) {
+        while (rotorIds.size() < requiredRotorCount) {
             int rotorId = random.nextInt(totalRotors) + 1; // 1-based indexing
             if (selectedRotors.add(rotorId)) {
                 rotorIds.add(rotorId);
@@ -82,7 +82,7 @@ public class AutomaticCodeConfigurator {
     private List<Integer> generateRandomRotorPositions(List<Integer> rotorIds) {
         List<Integer> positions = new ArrayList<>();
 
-        for (int i = 0; i < REQUIRED_ROTOR_COUNT; i++) {
+        for (int i = 0; i < requiredRotorCount; i++) {
             int rotorId = rotorIds.get(i);
             char letter = abc.charAt(random.nextInt(abc.length()));
             int positionIndex = xmlLoader.getPositionIndexByRightLetter(rotorId, letter);

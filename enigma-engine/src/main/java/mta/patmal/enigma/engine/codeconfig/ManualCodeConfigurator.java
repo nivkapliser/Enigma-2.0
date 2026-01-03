@@ -14,20 +14,20 @@ import mta.patmal.enigma.machine.component.rotor.Rotor;
 import java.util.*;
 
 public class ManualCodeConfigurator {
-    private static final int REQUIRED_ROTOR_COUNT = 3;
-
+    private final int requiredRotorCount;
     private final Machine machine;
     private final XmlLoader xmlLoader;
     private final String abc;
     private final int totalRotors;
     private final int totalReflectors;
 
-    public ManualCodeConfigurator(Machine machine, XmlLoader xmlLoader, String abc, int totalRotors, int totalReflectors) {
+    public ManualCodeConfigurator(Machine machine, XmlLoader xmlLoader, String abc, int totalRotors, int totalReflectors, int requiredRotorCount) {
         this.machine = machine;
         this.xmlLoader = xmlLoader;
         this.abc = abc;
         this.totalRotors = totalRotors;
         this.totalReflectors = totalReflectors;
+        this.requiredRotorCount = requiredRotorCount;
     }
 
     public void configure(List<Integer> rotorIds, String positionsString, int reflectorId, String plugsString) throws InvalidConfigurationException {
@@ -73,16 +73,16 @@ public class ManualCodeConfigurator {
 
     private void validateRotorIds(List<Integer> rotorIds) throws InvalidConfigurationException {
         if (rotorIds == null || rotorIds.isEmpty()) {
-            throw new InvalidConfigurationException("Rotor IDs cannot be empty. Please provide " + REQUIRED_ROTOR_COUNT + " rotor IDs.");
+            throw new InvalidConfigurationException("Rotor IDs cannot be empty. Please provide " + requiredRotorCount + " rotor IDs.");
         }
 
         if (rotorIds.size() != rotorIds.stream().distinct().count()) {
             throw new InvalidConfigurationException("Each rotor can only be selected once. Please try again.");
         }
 
-        if (rotorIds.size() != REQUIRED_ROTOR_COUNT) {
-            throw new InvalidConfigurationException("Expected exactly " + REQUIRED_ROTOR_COUNT + 
-                    " rotor IDs, but got " + rotorIds.size() + ". Please provide " + REQUIRED_ROTOR_COUNT + " rotor IDs.");
+        if (rotorIds.size() != requiredRotorCount) {
+            throw new InvalidConfigurationException("Expected exactly " + requiredRotorCount + 
+                    " rotor IDs, but got " + rotorIds.size() + ". Please provide " + requiredRotorCount + " rotor IDs.");
         }
 
         for (Integer rotorId : rotorIds) {
@@ -107,13 +107,13 @@ public class ManualCodeConfigurator {
     private List<Integer> parseAndValidatePositions(String positionsString, List<Integer> rotorIds) throws InvalidConfigurationException {
         if (positionsString == null || positionsString.trim().isEmpty()) {
             throw new InvalidConfigurationException("Initial positions cannot be empty. Please provide " + 
-                    REQUIRED_ROTOR_COUNT + " characters from the ABC.");
+                    requiredRotorCount + " characters from the ABC.");
         }
 
-        if (positionsString.length() != REQUIRED_ROTOR_COUNT) {
-            throw new InvalidConfigurationException("Expected exactly " + REQUIRED_ROTOR_COUNT + 
+        if (positionsString.length() != requiredRotorCount) {
+            throw new InvalidConfigurationException("Expected exactly " + requiredRotorCount + 
                     " characters for initial positions, but got " + positionsString.length() + 
-                    ". Please provide " + REQUIRED_ROTOR_COUNT + " characters from the ABC.");
+                    ". Please provide " + requiredRotorCount + " characters from the ABC.");
         }
 
         List<Integer> positions = new ArrayList<>();
