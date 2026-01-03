@@ -10,3 +10,4 @@ public class Main {
         new ConsoleUI(engine).run();
     }
 }
+
